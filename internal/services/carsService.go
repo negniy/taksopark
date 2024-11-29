@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 	"taksopark/internal/models"
-	"time"
 
 	"strconv"
 
@@ -14,6 +13,12 @@ import (
 
 type CarService struct {
 	db *gorm.DB
+}
+
+func NewCarService(init_db *gorm.DB) *CarService {
+	return &CarService{
+		db: init_db,
+	}
 }
 
 type CreateCarRequest struct {
@@ -34,7 +39,7 @@ func (s *CarService) Create(w http.ResponseWriter, r *http.Request) {
 	car := &models.Car{
 		LicensePlate: req.LicensePlate,
 		ModelID:      req.ModelID,
-		Year:         time.Date(req.Year, time.January, 1, 0, 0, 0, 0, time.UTC),
+		Year:         uint(req.Year),
 		Notes:        req.Notes,
 	}
 
@@ -44,14 +49,6 @@ func (s *CarService) Create(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response(w, http.StatusCreated, car)
-}
-
-type GetCarResponse struct {
-	CarID        uint   `json:"car_id"`
-	LicensePlate string `json:"license_plate"`
-	ModelID      uint   `json:"model_id"`
-	Year         int    `json:"year"`
-	Notes        string `json:"notes"`
 }
 
 func (s *CarService) Get(w http.ResponseWriter, r *http.Request) {
@@ -67,22 +64,12 @@ func (s *CarService) Get(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 	case err == nil:
-		response(w, http.StatusOK, GetCarResponse{
-			CarID:        car.CarID,
-			LicensePlate: car.LicensePlate,
-			ModelID:      car.ModelID,
-			Year:         car.Year.Year(),
-			Notes:        car.Notes,
-		})
+		response(w, http.StatusOK, car)
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		responseError(w, http.StatusNotFound, errors.New("record not found"))
 	default:
 		responseError(w, http.StatusInternalServerError, err)
 	}
-}
-
-type GetAllCarResponse struct {
-	Result []GetCarResponse `json:"results"`
 }
 
 func (s *CarService) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -93,20 +80,7 @@ func (s *CarService) GetAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var result []GetCarResponse
-	for _, car := range cars {
-		result = append(result, GetCarResponse{
-			CarID:        car.CarID,
-			LicensePlate: car.LicensePlate,
-			ModelID:      car.ModelID,
-			Year:         car.Year.Year(),
-			Notes:        car.Notes,
-		})
-	}
-
-	response(w, http.StatusOK, GetAllCarResponse{
-		Result: result,
-	})
+	response(w, http.StatusOK, cars)
 }
 
 type UpdateCarRequest struct {
@@ -185,7 +159,7 @@ func (s *CarService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 	case req.ModelID != nil:
 		car.ModelID = *req.ModelID
 	case req.Year != nil:
-		car.Year = time.Date(*req.Year, time.January, 1, 0, 0, 0, 0, time.UTC)
+		car.Year = uint(*req.Year)
 	case req.Notes != nil:
 		car.Notes = *req.Notes
 	}

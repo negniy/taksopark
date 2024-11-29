@@ -21,11 +21,12 @@ type CarModel struct {
 }
 
 type Car struct {
-	CarID        uint      `gorm:"primaryKey;autoIncrement" json:"car_id"`
-	LicensePlate string    `gorm:"size:100;uniqueIndex" json:"license_plate"`
-	ModelID      uint      `json:"model_id"`
-	Year         time.Time `gorm:"type:year" json:"year"`
-	Notes        string    `gorm:"type:json" json:"notes"`
+	CarID        uint     `gorm:"primaryKey;autoIncrement" json:"car_id"`
+	LicensePlate string   `gorm:"size:100;uniqueIndex" json:"license_plate"`
+	ModelID      uint     `json:"model_id"`
+	Model        CarModel `gorm:"foreignKey:ModelID" json:"model"`
+	Year         uint     `gorm:"type:year" json:"year"`
+	Notes        string   `gorm:"type:json" json:"notes"`
 }
 
 type Customer struct {
@@ -38,8 +39,11 @@ type Customer struct {
 type Trip struct {
 	TripID     uint      `gorm:"primaryKey;autoIncrement" json:"trip_id"`
 	DriverID   uint      `json:"driver_id"`
+	Driver     Driver    `gorm:"foreignKey:DriverID" json:"driver"`
 	CarID      uint      `json:"car_id"`
+	Car        Car       `gorm:"foreignKey:CarID" json:"car"`
 	CustomerID uint      `json:"customer_id"`
+	Customer   Customer  `gorm:"foreignKey:CustomerID" json:"customer"`
 	StartLat   float64   `gorm:"type:decimal(9,6)" json:"start_lat"`
 	StartLon   float64   `gorm:"type:decimal(9,6)" json:"start_lon"`
 	EndLat     float64   `gorm:"type:decimal(9,6)" json:"end_lat"`
