@@ -13,15 +13,15 @@ type QueryService struct {
 	db *gorm.DB
 }
 
-func NewQueryService(init_db *gorm.DB) *CarService {
-	return &CarService{
+func NewQueryService(init_db *gorm.DB) *QueryService {
+	return &QueryService{
 		db: init_db,
 	}
 }
 
 func (q *QueryService) CarOfYear(w http.ResponseWriter, r *http.Request) {
 
-	res := new(DTO.CarWithModel)
+	var res []DTO.CarWithModel
 	yearString := r.PathValue("year")
 	year, err := strconv.Atoi(yearString)
 	if err != nil {
@@ -30,10 +30,10 @@ func (q *QueryService) CarOfYear(w http.ResponseWriter, r *http.Request) {
 	}
 
 	query := q.db.Raw(`
-	select car_id, license_plate, year, model_name, manufacturer
+	select car_id, license_plate, cars.year, model_name, manufacturer
 	from
 	cars inner join car_models cm on cars.model_id = cm.model_id
-	where year(year) = ?
+	where cars.year = ?
 	`, year).Scan(&res)
 
 	if query.Error != nil {
@@ -46,7 +46,7 @@ func (q *QueryService) CarOfYear(w http.ResponseWriter, r *http.Request) {
 
 func (q *QueryService) DriverTripCounter(w http.ResponseWriter, r *http.Request) {
 
-	res := new(DTO.PersonCount)
+	var res []DTO.PersonCount
 
 	query := q.db.Raw(`
 	select first_name, last_name, count(trips.trip_id) count
@@ -66,7 +66,7 @@ func (q *QueryService) DriverTripCounter(w http.ResponseWriter, r *http.Request)
 
 func (q *QueryService) DriverTripAutoCounter(w http.ResponseWriter, r *http.Request) {
 
-	res := new(DTO.DriverCount)
+	var res []DTO.DriverCount
 
 	query := q.db.Raw(`
 	select d.first_name, d.last_name, c.license_plate, count(t.trip_id) count
@@ -86,7 +86,7 @@ func (q *QueryService) DriverTripAutoCounter(w http.ResponseWriter, r *http.Requ
 
 func (q *QueryService) ClientTripMoreThan(w http.ResponseWriter, r *http.Request) {
 
-	res := new(DTO.PersonCount)
+	var res []DTO.PersonCount
 	nString := r.PathValue("n")
 	n, err := strconv.Atoi(nString)
 	if err != nil {
@@ -112,7 +112,7 @@ func (q *QueryService) ClientTripMoreThan(w http.ResponseWriter, r *http.Request
 
 func (q *QueryService) BestDrivers(w http.ResponseWriter, r *http.Request) {
 
-	res := new(DTO.Person)
+	var res []DTO.Person
 
 	query := q.db.Raw(`
 	select d.first_name, d.last_name

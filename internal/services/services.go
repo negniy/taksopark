@@ -34,7 +34,8 @@ func responseError(w http.ResponseWriter, code int, err error) {
 
 func NewService(db *gorm.DB) *Service {
 	return &Service{
-		Cars: *NewCarService(db),
+		Cars:  *NewCarService(db),
+		Query: *NewQueryService(db),
 		// models: ,
 		// drivers
 	}

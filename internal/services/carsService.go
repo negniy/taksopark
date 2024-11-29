@@ -60,7 +60,7 @@ func (s *CarService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var car models.Car
-	err = s.db.First(&car, id).Error
+	err = s.db.Preload("Model").First(&car, id).Error
 
 	switch {
 	case err == nil:
@@ -74,7 +74,7 @@ func (s *CarService) Get(w http.ResponseWriter, r *http.Request) {
 
 func (s *CarService) GetAll(w http.ResponseWriter, r *http.Request) {
 	var cars []models.Car
-	err := s.db.Find(&cars).Error
+	err := s.db.Preload("Model").Find(&cars).Error
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)
 		return
@@ -107,7 +107,7 @@ func (s *CarService) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var car models.Car
-	if err := s.db.First(&car, id).Error; err != nil {
+	if err := s.db.Preload("Model").First(&car, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			responseError(w, http.StatusNotFound, errors.New("car not found"))
 			return
@@ -164,7 +164,7 @@ func (s *CarService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 		car.Notes = *req.Notes
 	}
 
-	err = s.db.Save(&car).Error
+	err = s.db.Preload("Model").Save(&car).Error
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)
 		return

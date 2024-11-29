@@ -1,16 +1,16 @@
 package DTO
 
 import (
-	"taksopark/internal/models"
-	"time"
+	_ "gorm.io/driver/mysql"
+	_ "gorm.io/gorm"
 )
 
 type CarWithModel struct {
-	CarID        uint            `json:"car_id" gorm:"column:car_id"`
-	LicensePlate string          `json:"license_plate" gorm:"column:license_plate"`
-	Model        models.CarModel `json:"model" gorm:"column:model_name"`
-	Year         time.Time       `json:"year" gorm:"column:year"`
-	Manufacturer string          `json:"manufacturer" gorm:"column:manufacturer"`
+	CarID        uint   `gorm:"column:car_id" json:"car_id"`
+	LicensePlate string `gorm:"column:license_plate" json:"license_plate"`
+	ModelName    string `gorm:"column:model_name" json:"model_name"`
+	Year         uint   `gorm:"column:year" json:"year"`
+	Manufacturer string `gorm:"column:manufacturer" json:"manufacturer"`
 }
 
 type PersonCount struct {
@@ -29,7 +29,7 @@ type DriverCount struct {
 }
 
 type Statistic struct {
-	Min time.Time `json:"min" gorm:"column:min"`
-	Max time.Time `json:"max" gorm:"column:max"`
-	Avg time.Time `json:"avg" gorm:"column:avg"`
+	Min int     `json:"min" gorm:"column:min"`
+	Max int     `json:"max" gorm:"column:max"`
+	Avg float32 `json:"avg" gorm:"column:avg"`
 }
