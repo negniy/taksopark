@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"taksopark/internal/DTO"
+	"taksopark/internal/models"
 
 	"gorm.io/gorm"
 )
@@ -48,13 +49,11 @@ func (q *QueryService) DriverTripCounter(w http.ResponseWriter, r *http.Request)
 
 	var res []DTO.PersonCount
 
-	query := q.db.Raw(`
-	select first_name, last_name, count(trips.trip_id) count
-	from drivers
-	left join trips on trips.driver_id=drivers.driver_id
-	group by drivers.driver_id
-	order by count desc
-	`).Scan(&res)
+	query := q.db.Model(models.Driver{}).
+		Select("first_name, last_name, count(trips.trip_id) count").
+		Joins("left join trips on trips.driver_id=drivers.driver_id").
+		Group("drivers.driver_id").
+		Order("count desc").Scan(&res)
 
 	if query.Error != nil {
 		responseError(w, http.StatusBadRequest, query.Error)
@@ -68,13 +67,12 @@ func (q *QueryService) DriverTripAutoCounter(w http.ResponseWriter, r *http.Requ
 
 	var res []DTO.DriverCount
 
-	query := q.db.Raw(`
-	select d.first_name, d.last_name, c.license_plate, count(t.trip_id) count
-	from
-	drivers d left join trips t on t.driver_id=d.driver_id
-	inner join cars c on c.car_id = t.car_id
-	group by c.car_id, d.first_name, d.last_name, c.license_plate
-	`).Scan(&res)
+	query := q.db.Model(models.Driver{}).
+		Select("first_name, last_name, license_plate, count(t.trip_id) count").
+		Joins("left join trips t on t.driver_id = drivers.driver_id").
+		Joins("join cars c on c.car_id = t.car_id").
+		Group("c.car_id, first_name, last_name, license_plate").
+		Scan(&res)
 
 	if query.Error != nil {
 		responseError(w, http.StatusBadRequest, query.Error)
@@ -114,23 +112,19 @@ func (q *QueryService) BestDrivers(w http.ResponseWriter, r *http.Request) {
 
 	var res []DTO.Person
 
-	query := q.db.Raw(`
-	select d.first_name, d.last_name
-	from drivers d
-	join (
-		select driver_id, count(trip_id) as trip_count
-		from trips
-		group by driver_id
-	) t on d.driver_id = t.driver_id
-	where t.trip_count = (
-		select max(trip_count)
-		from (
-			select count(trip_id) as trip_count
-			from trips
-			group by driver_id
-		) as max_trips
-	)
-	`).Scan(&res)
+	subQuery := q.db.Model(&models.Trip{}).
+		Select("driver_id, count(trip_id) as trip_count").
+		Group("driver_id")
+
+	maxTripCountSubQuery := q.db.Model(&models.Trip{}).
+		Table("(?) as t", subQuery).
+		Select("max(t.trip_count)")
+
+	query := q.db.Model(&models.Driver{}).
+		Select("drivers.first_name, drivers.last_name").
+		Joins("JOIN (?) AS t ON drivers.driver_id = t.driver_id", subQuery).
+		Where("t.trip_count = (?)", maxTripCountSubQuery).
+		Scan(&res)
 
 	if query.Error != nil {
 		responseError(w, http.StatusBadRequest, query.Error)
@@ -144,13 +138,11 @@ func (q *QueryService) Statistic(w http.ResponseWriter, r *http.Request) {
 
 	res := new(DTO.Statistic)
 
-	query := q.db.Raw(`
-	select 
-		min(timestampdiff(minute, start_time, end_time)) as min,
-		avg(timestampdiff(minute, start_time, end_time)) as avg,
-		max(timestampdiff(minute, start_time, end_time)) as max
-	from trips;
-	`).Scan(&res)
+	query := q.db.Model(models.Trip{}).
+		Select("min(timestampdiff(minute, start_time, end_time)) as min",
+			"avg(timestampdiff(minute, start_time, end_time)) as avg",
+			"max(timestampdiff(minute, start_time, end_time)) as max").
+		Scan(&res)
 
 	if query.Error != nil {
 		responseError(w, http.StatusBadRequest, query.Error)
