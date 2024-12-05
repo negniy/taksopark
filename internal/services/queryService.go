@@ -14,8 +14,8 @@ type QueryService struct {
 	db *gorm.DB
 }
 
-func NewQueryService(init_db *gorm.DB) *QueryService {
-	return &QueryService{
+func NewQueryService(init_db *gorm.DB) QueryService {
+	return QueryService{
 		db: init_db,
 	}
 }

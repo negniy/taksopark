@@ -28,7 +28,7 @@ func InitDB() {
 
 func Run() error {
 
-	service := *services.NewService(db)
+	service := services.NewService(db)
 
 	h := http.NewServeMux()
 	h.HandleFunc("GET /cars", service.Cars.GetAll)
@@ -36,6 +36,30 @@ func Run() error {
 	h.HandleFunc("PUT /cars/{id}", service.Cars.Update)
 	h.HandleFunc("PATCH /cars/{id}", service.Cars.UpdateSomething)
 	h.HandleFunc("DELETE /cars/{id}", service.Cars.Delete)
+
+	h.HandleFunc("GET /customers", service.Customers.GetAll)
+	h.HandleFunc("GET /customers/{id}", service.Customers.Get)
+	h.HandleFunc("PUT /customers/{id}", service.Customers.Update)
+	h.HandleFunc("PATCH /customers/{id}", service.Customers.UpdateSomething)
+	h.HandleFunc("DELETE /customers/{id}", service.Customers.Delete)
+
+	h.HandleFunc("GET /models", service.Models.GetAll)
+	h.HandleFunc("GET /models/{id}", service.Models.Get)
+	h.HandleFunc("PUT /models/{id}", service.Models.Update)
+	h.HandleFunc("PATCH /models/{id}", service.Models.UpdateSomething)
+	h.HandleFunc("DELETE /models/{id}", service.Models.Delete)
+
+	h.HandleFunc("GET /drivers", service.Drivers.GetAll)
+	h.HandleFunc("GET /drivers/{id}", service.Drivers.Get)
+	h.HandleFunc("PUT /drivers/{id}", service.Drivers.Update)
+	h.HandleFunc("PATCH /drivers/{id}", service.Drivers.UpdateSomething)
+	h.HandleFunc("DELETE /drivers/{id}", service.Drivers.Delete)
+
+	h.HandleFunc("GET /trips", service.Trips.GetAll)
+	h.HandleFunc("GET /trips/{id}", service.Trips.Get)
+	h.HandleFunc("PUT /trips/{id}", service.Trips.Update)
+	h.HandleFunc("PATCH /trips/{id}", service.Trips.UpdateSomething)
+	h.HandleFunc("DELETE /trips/{id}", service.Trips.Delete)
 
 	h.HandleFunc("GET /cars/year/{year}", service.Query.CarOfYear)
 	h.HandleFunc("GET /drivers/count", service.Query.DriverTripCounter)

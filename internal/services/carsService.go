@@ -15,8 +15,8 @@ type CarService struct {
 	db *gorm.DB
 }
 
-func NewCarService(init_db *gorm.DB) *CarService {
-	return &CarService{
+func NewCarService(init_db *gorm.DB) CarService {
+	return CarService{
 		db: init_db,
 	}
 }
@@ -116,6 +116,11 @@ func (s *CarService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	car.LicensePlate = req.LicensePlate
+	car.ModelID = req.ModelID
+	car.Notes = req.Notes
+	car.Year = uint(req.Year)
+
 	if err := s.db.Save(&car).Error; err != nil {
 		responseError(w, http.StatusInternalServerError, err)
 		return
@@ -181,7 +186,7 @@ func (s *CarService) Delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err = s.db.Delete(id).Error; err != nil {
+	if err = s.db.Delete(models.Car{}, id).Error; err != nil {
 		responseError(w, http.StatusInternalServerError, err)
 		return
 	}
