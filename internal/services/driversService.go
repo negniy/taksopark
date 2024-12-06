@@ -20,6 +20,34 @@ func NewDriverService(init_db *gorm.DB) DriverService {
 	}
 }
 
+type CreateDriverRequest struct {
+	FirstName     string `json:"first_name"`
+	LastName      string `json:"last_name"`
+	LisenceNumber string `json:"lisence_number"`
+}
+
+func (s *DriverService) Create(w http.ResponseWriter, r *http.Request) {
+	req := new(CreateDriverRequest)
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		responseError(w, http.StatusBadRequest, err)
+		return
+	}
+	defer r.Body.Close()
+
+	driver := &models.Driver{
+		FirstName:     req.FirstName,
+		LastName:      req.LastName,
+		LisenceNumber: req.LisenceNumber,
+	}
+
+	if err := s.db.Create(driver).Error; err != nil {
+		responseError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response(w, http.StatusCreated, driver)
+}
+
 func (s *DriverService) GetAll(w http.ResponseWriter, r *http.Request) {
 	var drivers []models.Driver
 	err := s.db.Find(&drivers).Error
@@ -83,7 +111,7 @@ func (s *DriverService) Update(w http.ResponseWriter, r *http.Request) {
 
 	driver.FirstName = req.FirstName
 	driver.LastName = req.LastName
-	driver.LicenseNumber = req.LicenseNumber
+	driver.LisenceNumber = req.LicenseNumber
 
 	err = s.db.Save(&driver).Error
 	if err != nil {
@@ -97,7 +125,7 @@ func (s *DriverService) Update(w http.ResponseWriter, r *http.Request) {
 type UpdateSomethingDriverRequest struct {
 	FirstName     *string `json:"first_name,omitempty"`
 	LastName      *string `json:"last_name,omitempty"`
-	LicenseNumber *string `json:"phone,omitempty"`
+	LisenceNumber *string `json:"lisence_number,omitempty"`
 }
 
 func (s *DriverService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
@@ -131,8 +159,8 @@ func (s *DriverService) UpdateSomething(w http.ResponseWriter, r *http.Request) 
 		driver.FirstName = *req.FirstName
 	case req.LastName != nil:
 		driver.LastName = *req.LastName
-	case req.LicenseNumber != nil:
-		driver.LicenseNumber = *req.LicenseNumber
+	case req.LisenceNumber != nil:
+		driver.LisenceNumber = *req.LisenceNumber
 	}
 
 	err = s.db.Save(&driver).Error

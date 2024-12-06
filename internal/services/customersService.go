@@ -20,6 +20,34 @@ func NewCustomerService(init_db *gorm.DB) CustomerService {
 	}
 }
 
+type CreateCustomerRequest struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+}
+
+func (s *CustomerService) Create(w http.ResponseWriter, r *http.Request) {
+	req := new(CreateCustomerRequest)
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		responseError(w, http.StatusBadRequest, err)
+		return
+	}
+	defer r.Body.Close()
+
+	customer := &models.Customer{
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
+		Phone:     req.Phone,
+	}
+
+	if err := s.db.Create(customer).Error; err != nil {
+		responseError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response(w, http.StatusCreated, customer)
+}
+
 func (s *CustomerService) GetAll(w http.ResponseWriter, r *http.Request) {
 	var customers []models.Customer
 	err := s.db.Find(&customers).Error

@@ -11,7 +11,7 @@ type Driver struct {
 	DriverID      uint   `gorm:"primaryKey;autoIncrement" json:"driver_id"`
 	FirstName     string `gorm:"size:100" json:"first_name"`
 	LastName      string `gorm:"size:100" json:"last_name"`
-	LicenseNumber string `gorm:"uniqueIndex" json:"license_number"`
+	LisenceNumber string `gorm:"uniqueIndex" json:"lisence_number"`
 }
 
 type CarModel struct {

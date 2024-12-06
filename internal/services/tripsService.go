@@ -73,7 +73,7 @@ func (s *TripService) Get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var trip models.Trip
-	err = s.db.Preload("Customer").Preload("Driver").Preload("Car").Preload("Model").First(&trip, id).Error
+	err = s.db.Preload("Customer").Preload("Driver").Preload("Car").Preload("Car.Model").First(&trip, id).Error
 
 	switch {
 	case err == nil:
@@ -87,7 +87,7 @@ func (s *TripService) Get(w http.ResponseWriter, r *http.Request) {
 
 func (s *TripService) GetAll(w http.ResponseWriter, r *http.Request) {
 	var trips []models.Trip
-	err := s.db.Preload("Customer").Preload("Driver").Preload("Car").Preload("Model").Find(&trips).Error
+	err := s.db.Preload("Customer").Preload("Driver").Preload("Car").Preload("Car.Model").Find(&trips).Error
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)
 		return
@@ -126,7 +126,7 @@ func (s *TripService) Update(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	var trip models.Trip
-	if err := s.db.Preload("Customer").Preload("Driver").Preload("Car").Preload("Model").First(&trip, id).Error; err != nil {
+	if err := s.db.Preload("Customer").Preload("Driver").Preload("Car").First(&trip, id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			responseError(w, http.StatusNotFound, errors.New("trip not found"))
 			return
@@ -212,7 +212,7 @@ func (s *TripService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 		trip.Cost = *req.Cost
 	}
 
-	err = s.db.Preload("Customer").Preload("Driver").Preload("Car").Preload("Model").Save(&trip).Error
+	err = s.db.Preload("Customer").Preload("Driver").Preload("Car").Save(&trip).Error
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)
 		return

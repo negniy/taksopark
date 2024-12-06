@@ -20,6 +20,32 @@ func NewModelService(init_db *gorm.DB) ModelService {
 	}
 }
 
+type CreateModelRequest struct {
+	ModelName    string `json:"model_name"`
+	Manufacturer string `json:"manufacturer"`
+}
+
+func (s *ModelService) Create(w http.ResponseWriter, r *http.Request) {
+	req := new(CreateModelRequest)
+	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
+		responseError(w, http.StatusBadRequest, err)
+		return
+	}
+	defer r.Body.Close()
+
+	model := &models.CarModel{
+		ModelName:    req.ModelName,
+		Manufacturer: req.Manufacturer,
+	}
+
+	if err := s.db.Create(model).Error; err != nil {
+		responseError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	response(w, http.StatusCreated, model)
+}
+
 func (s *ModelService) GetAll(w http.ResponseWriter, r *http.Request) {
 	var models []models.CarModel
 	err := s.db.Find(&models).Error
