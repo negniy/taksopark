@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"taksopark/internal/DTO"
 	"taksopark/internal/models"
-	"time"
 
 	"strconv"
 
@@ -22,21 +22,8 @@ func NewTripService(init_db *gorm.DB) TripService {
 	}
 }
 
-type CreateTripRequest struct {
-	DriverID   uint      `json:"driver_id"`
-	CarID      uint      `json:"car_id"`
-	CustomerID uint      `json:"customer_id"`
-	StartLat   float64   `gorm:"type:decimal(9,6)" json:"start_lat"`
-	StartLon   float64   `gorm:"type:decimal(9,6)" json:"start_lon"`
-	EndLat     float64   `gorm:"type:decimal(9,6)" json:"end_lat"`
-	EndLon     float64   `gorm:"type:decimal(9,6)" json:"end_lon"`
-	StartTime  time.Time `gorm:"type:datetime(8)" json:"start_time"`
-	EndTime    time.Time `gorm:"type:datetime(8)" json:"end_time"`
-	Cost       float64   `gorm:"type:decimal(10,2)" json:"cost"`
-}
-
 func (s *TripService) Create(w http.ResponseWriter, r *http.Request) {
-	req := new(CreateTripRequest)
+	req := new(DTO.CreateTripRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -96,19 +83,6 @@ func (s *TripService) GetAll(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, trips)
 }
 
-type UpdateTripRequest struct {
-	DriverID   uint      `json:"driver_id"`
-	CarID      uint      `json:"car_id"`
-	CustomerID uint      `json:"customer_id"`
-	StartLat   float64   `json:"start_lat"`
-	StartLon   float64   `json:"start_lon"`
-	EndLat     float64   `json:"end_lat"`
-	EndLon     float64   `json:"end_lon"`
-	StartTime  time.Time `json:"start_time"`
-	EndTime    time.Time `json:"end_time"`
-	Cost       float64   `json:"cost"`
-}
-
 func (s *TripService) Update(w http.ResponseWriter, r *http.Request) {
 
 	idString := r.PathValue("id")
@@ -118,7 +92,7 @@ func (s *TripService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateTripRequest)
+	req := new(DTO.UpdateTripRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -154,19 +128,6 @@ func (s *TripService) Update(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, trip)
 }
 
-type UpdateSomethingTripRequest struct {
-	DriverID   *uint      `json:"driver_id,omitempty"`
-	CarID      *uint      `json:"car_id,omitempty"`
-	CustomerID *uint      `json:"customer_id,omitempty"`
-	StartLat   *float64   `json:"start_lat,omitempty"`
-	StartLon   *float64   `json:"start_lon,omitempty"`
-	EndLat     *float64   `json:"end_lat,omitempty"`
-	EndLon     *float64   `json:"end_lon,omitempty"`
-	StartTime  *time.Time `json:"start_time,omitempty"`
-	EndTime    *time.Time `json:"end_time,omitempty"`
-	Cost       *float64   `json:"cost,omitempty"`
-}
-
 func (s *TripService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -175,7 +136,7 @@ func (s *TripService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateSomethingTripRequest)
+	req := new(DTO.UpdateSomethingTripRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return

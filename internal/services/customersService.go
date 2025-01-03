@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"taksopark/internal/DTO"
 	"taksopark/internal/models"
 
 	"gorm.io/gorm"
@@ -20,14 +21,8 @@ func NewCustomerService(init_db *gorm.DB) CustomerService {
 	}
 }
 
-type CreateCustomerRequest struct {
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Phone     string `json:"phone"`
-}
-
 func (s *CustomerService) Create(w http.ResponseWriter, r *http.Request) {
-	req := new(CreateCustomerRequest)
+	req := new(DTO.CreateCustomerRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -77,12 +72,6 @@ func (s *CustomerService) Get(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, customer)
 }
 
-type UpdateCustomerRequest struct {
-	FirstName string `gorm:"size:100" json:"first_name"`
-	LastName  string `gorm:"size:100" json:"last_name"`
-	Phone     string `gorm:"size:15" json:"phone"`
-}
-
 func (s *CustomerService) Update(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -91,7 +80,7 @@ func (s *CustomerService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateCustomerRequest)
+	req := new(DTO.UpdateCustomerRequest)
 	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		responseError(w, http.StatusBadRequest, err)
@@ -122,12 +111,6 @@ func (s *CustomerService) Update(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, nil)
 }
 
-type UpdateSomethingCustomerRequest struct {
-	FirstName *string `json:"first_name,omitempty"`
-	LastName  *string `json:"last_name,omitempty"`
-	Phone     *string `json:"phone,omitempty"`
-}
-
 func (s *CustomerService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -147,7 +130,7 @@ func (s *CustomerService) UpdateSomething(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	req := new(UpdateSomethingCustomerRequest)
+	req := new(DTO.UpdateSomethingCustomerRequest)
 	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)

@@ -21,7 +21,7 @@ func InitDB() {
 	var err error
 	db, err = gorm.Open(mysql.Open(dbconnect), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Ошибка подключения к базе данных: %v", err)
+		log.Fatalf("Connection error to database: %v", err)
 	}
 
 }

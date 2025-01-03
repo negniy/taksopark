@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"taksopark/internal/DTO"
 	"taksopark/internal/models"
 
 	"gorm.io/gorm"
@@ -20,14 +21,8 @@ func NewDriverService(init_db *gorm.DB) DriverService {
 	}
 }
 
-type CreateDriverRequest struct {
-	FirstName     string `json:"first_name"`
-	LastName      string `json:"last_name"`
-	LisenceNumber string `json:"lisence_number"`
-}
-
 func (s *DriverService) Create(w http.ResponseWriter, r *http.Request) {
-	req := new(CreateDriverRequest)
+	req := new(DTO.CreateDriverRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -77,12 +72,6 @@ func (s *DriverService) Get(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, driver)
 }
 
-type UpdateDriverRequest struct {
-	FirstName     string `gorm:"size:100" json:"first_name"`
-	LastName      string `gorm:"size:100" json:"last_name"`
-	LicenseNumber string `gorm:"uniqueIndex" json:"license_number"`
-}
-
 func (s *DriverService) Update(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -91,7 +80,7 @@ func (s *DriverService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateDriverRequest)
+	req := new(DTO.UpdateDriverRequest)
 	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		responseError(w, http.StatusBadRequest, err)
@@ -122,12 +111,6 @@ func (s *DriverService) Update(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, nil)
 }
 
-type UpdateSomethingDriverRequest struct {
-	FirstName     *string `json:"first_name,omitempty"`
-	LastName      *string `json:"last_name,omitempty"`
-	LisenceNumber *string `json:"lisence_number,omitempty"`
-}
-
 func (s *DriverService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -147,7 +130,7 @@ func (s *DriverService) UpdateSomething(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	req := new(UpdateSomethingDriverRequest)
+	req := new(DTO.UpdateSomethingDriverRequest)
 	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)

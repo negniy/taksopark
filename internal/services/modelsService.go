@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"taksopark/internal/DTO"
 	"taksopark/internal/models"
 
 	"gorm.io/gorm"
@@ -20,13 +21,8 @@ func NewModelService(init_db *gorm.DB) ModelService {
 	}
 }
 
-type CreateModelRequest struct {
-	ModelName    string `json:"model_name"`
-	Manufacturer string `json:"manufacturer"`
-}
-
 func (s *ModelService) Create(w http.ResponseWriter, r *http.Request) {
-	req := new(CreateModelRequest)
+	req := new(DTO.CreateModelRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -75,11 +71,6 @@ func (s *ModelService) Get(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, model)
 }
 
-type UpdateModelRequest struct {
-	ModelName    string `gorm:"size:100" json:"model_name"`
-	Manufacturer string `gorm:"size:100" json:"manufacturer"`
-}
-
 func (s *ModelService) Update(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -88,7 +79,7 @@ func (s *ModelService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateModelRequest)
+	req := new(DTO.UpdateModelRequest)
 	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		responseError(w, http.StatusBadRequest, err)
@@ -118,11 +109,6 @@ func (s *ModelService) Update(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, nil)
 }
 
-type UpdateSomethingModelRequest struct {
-	ModelName    *string `json:"model_name,omitempty"`
-	Manufacturer *string `json:"manufacturer,omitempty"`
-}
-
 func (s *ModelService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -142,7 +128,7 @@ func (s *ModelService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateSomethingModelRequest)
+	req := new(DTO.UpdateSomethingModelRequest)
 	err = json.NewDecoder(r.Body).Decode(req)
 	if err != nil {
 		responseError(w, http.StatusInternalServerError, err)

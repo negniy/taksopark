@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"taksopark/internal/DTO"
 	"taksopark/internal/models"
 
 	"strconv"
@@ -21,15 +22,8 @@ func NewCarService(init_db *gorm.DB) CarService {
 	}
 }
 
-type CreateCarRequest struct {
-	LicensePlate string `json:"license_plate"`
-	ModelID      uint   `json:"model_id"`
-	Year         int    `json:"year"`
-	Notes        string `json:"notes"`
-}
-
 func (s *CarService) Create(w http.ResponseWriter, r *http.Request) {
-	req := new(CreateCarRequest)
+	req := new(DTO.CreateCarRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -83,13 +77,6 @@ func (s *CarService) GetAll(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, cars)
 }
 
-type UpdateCarRequest struct {
-	LicensePlate string `json:"license_plate"`
-	ModelID      uint   `json:"model_id"`
-	Year         int    `json:"year"`
-	Notes        string `json:"notes"`
-}
-
 func (s *CarService) Update(w http.ResponseWriter, r *http.Request) {
 
 	idString := r.PathValue("id")
@@ -99,7 +86,7 @@ func (s *CarService) Update(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateCarRequest)
+	req := new(DTO.UpdateCarRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
@@ -129,13 +116,6 @@ func (s *CarService) Update(w http.ResponseWriter, r *http.Request) {
 	response(w, http.StatusOK, car)
 }
 
-type UpdateSomethingCarRequest struct {
-	LicensePlate *string `json:"license_plate,omitempty"`
-	ModelID      *uint   `json:"model_id,omitempty"`
-	Year         *int    `json:"year,omitempty"`
-	Notes        *string `json:"notes,omitempty"`
-}
-
 func (s *CarService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 	idString := r.PathValue("id")
 	id, err := strconv.Atoi(idString)
@@ -144,7 +124,7 @@ func (s *CarService) UpdateSomething(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req := new(UpdateSomethingCarRequest)
+	req := new(DTO.UpdateSomethingCarRequest)
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		responseError(w, http.StatusBadRequest, err)
 		return
