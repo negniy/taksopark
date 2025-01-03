@@ -90,7 +90,7 @@ func Run() error {
 	signal.Notify(ch, syscall.SIGINT)
 	defer signal.Stop(ch)
 	sig := <-ch
-	log.Printf("%s %v - %s", "Reseived shutdown signal", sig, "")
+	log.Printf("%s - %v", "Reseived shutdown signal", sig)
 	return server.Shutdown(context.Background())
 }
 
